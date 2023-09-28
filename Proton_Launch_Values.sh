@@ -161,19 +161,19 @@ Spheara() { ## New and improved Spinner!
 } ## End of Function
 
 ##Check If Nvidia Driver Is At Least 520.56.06
-declare DriverVersion
-export DriverVersion
+declare -G NvidiaDriverVersion
+export NvidiaDriverVersion
 NDriverVersionCheck() {
-    DriverVersion=$(modinfo nvidia | grep ^version | grep -E -o "[0-9]{3}\.[0-9]{2,3}\.[0-9]{2,}")
-    case "$([[ "${DriverVersion}" -ge '520.56.06' ]];${?})" in 
+    NvidiaDriverVersion=$(modinfo nvidia | grep ^version | grep -E -o "[0-9]{3}\.[0-9]{2,3}\.[0-9]{2,}")
+    case "$([[ "${NvidiaDriverVersion}" -ge '520.56.06' ]];${?})" in 
         0)
-            DriverVersion=0
+            NvidiaDriverVersion=0
         ;;
         1)
-            DriverVersion="invalid"
+            NvidiaDriverVersion="invalid"
         ;;
         *)
-            DriverVersion="unknown"
+            NvidiaDriverVersion="unknown"
         ;;
     esac
 } ## End Of Function 
@@ -216,6 +216,8 @@ declare NvidiaShaderCacheEnabled
 export NvidiaShaderCacheEnabled
 declare NvidiaShaderCacheStore
 export NvidiaShaderCacheStore
+declare NGXEnabled
+export NGXEnabled
 declare AMDRADVEnable
 export AMDRADVEnable
 declare AMDVLKEnable
@@ -248,8 +250,7 @@ declare DLLOverrides
 export DLLOverrides
 declare OverrideEnable
 export OverrideEnable
-declare UserOptions
-declare -gA UserOptions
+declare -A UserOptions=()
 export UserOptions
 declare LaunchParams
 
@@ -563,29 +564,26 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
             done
             case "${PromptOutput}" in
                 +(yes|YES|y|Y|Yes))
-                    NDriverVersionCheck
-                    [[ ${DriverVersion} == 0 ]] && NGXEnabled=1
-                    case "${DriverVersion}" in 
+                    case "$( [[ "$(modinfo nvidia | grep ^version | grep -E -o "[0-9.]{7,}")" > "520.56.06" ]] )${?}" in 
                         0)
-                            printf %b "[${Green}Success${White}]: Your Driver Supports NGX"
-                            NGXEnabled=1
+                            NGXEnabled=1 
+                            #printf %b "\n[${Green}Success${White}]: Your Driver Supports NGX\n"
                         ;;
-                        "invalid")
-                            printf %b "[${Yellow}Warning${White}]: Your GPU Does Not Support NGX"
-                            NGXEnabled=0
+                        1)
+                            NGXEnabled=0 
+                            #printf %b "[${Yellow}Warning${White}]: Your GPU Does Not Support NGX"
                         ;;
-                        "unknown")
-                            printf %b "[${Yellow}Warning${White}]: Unknown Driver Version, Skipping NGX"
-                            NGXEnabled=0
+                        *)
+                            NGXEnabled=0 
+                            #printf %b "[${Yellow}Warning${White}]: Unknown Driver Version, Skipping NGX"
                         ;;
-                    
                     esac
                 ;;
                 +(no|NO|N|n|No))
                     NGXEnabled=0
                 ;;
             esac
-            UserOptions+=(["NGXEnabled"]="${NGXEnabled}")
+            UserOptions+=(["NGXStatus"]="${NGXEnabled}")
 
             ## Hide Nvidia GPU
             clear && Introduction && PromptUser "${Bteal}Do you want to hide your Nvidia GPU?${White}\n"
@@ -673,8 +671,6 @@ ProtonLauncherArgs() {
     GetUserSpecs && GetUserOptions
     for Option in "${!UserOptions[@]}"; do
        [[ ${UserOptions[${Option}]} != 1 ]] && continue
-        echo -e "Option: ${Option}\nValue: ${UserOptions[${Option}]}\n\n"
-        
         case "${Option}" in 
             "GamemodeStatus")
                 LaunchParams+=("gamemoderun")
@@ -683,62 +679,62 @@ ProtonLauncherArgs() {
                 LaunchParams+=("mangohud")
             ;;
             "NvidiaShaderCache")
-                LaunchParams+=("__GL_THREADED_OPTIMIZATION=1 __GL_SHADER_DISK_CACHE=1 __GL_SHADER_DISK_CACHE_PATH=\"${NvidiaShaderCacheStore}\" ") && continue
+                LaunchParams+=("__GL_THREADED_OPTIMIZATION=1 __GL_SHADER_DISK_CACHE=1 __GL_SHADER_DISK_CACHE_PATH=\"${NvidiaShaderCacheStore}\"") && continue
             ;;
             "ValveACO")
-                LaunchParams+=('RADV_PERFTEST=aco ')
+                LaunchParams+=('RADV_PERFTEST=aco')
             ;;
             "AMDRADV")
-                LaunchParams+=('AMD_VULKAN_ICD=RADV ')
+                LaunchParams+=('AMD_VULKAN_ICD=RADV')
             ;;
             "AMDVLK")
-                LaunchParams+=('AMD_VULKAN_ICD=AMDVLK ')
+                LaunchParams+=('AMD_VULKAN_ICD=AMDVLK')
             ;;
             "Logging")
-                LaunchParams+=('PROTON_LOG=1 ') && continue
+                LaunchParams+=('PROTON_LOG=1') && continue
             ;;
             "HideNvidia")
-                LaunchParams+=('PROTON_HIDE_NVIDIA_GPU=0 ') && continue
+                LaunchParams+=('PROTON_HIDE_NVIDIA_GPU=0') && continue
             ;;
             "DX9Disable")
-                LaunchParams+=('PROTON_NO_D3D9 ') && continue
+                LaunchParams+=('PROTON_NO_D3D9') && continue
             ;;
             "DX10Disable")
-                LaunchParams+=('PROTON_NO_D3D10 ') && continue
+                LaunchParams+=('PROTON_NO_D3D10') && continue
             ;;
             "DX11Disable")
-                LaunchParams+=('PROTON_NO_D3D11 ') && continue
+                LaunchParams+=('PROTON_NO_D3D11') && continue
             ;;
             "IntegerScaling")
-                LaunchParams+=('WINE_FULLSCREEN_INTEGER_SCALING ') && continue
+                LaunchParams+=('WINE_FULLSCREEN_INTEGER_SCALING') && continue
             ;;
             "ProtonOldGL")
-                LaunchParams+=('PROTON_OLD_GL_STRING ')
+                LaunchParams+=('PROTON_OLD_GL_STRING')
             ;;
             ## Not Implimented Yet
             #"Overrides")
             #    LaunchParams+='PROTON_LOG=1 ' && continue
             #;;
             "DisableBar")
-                LaunchParams+=('VKD3D_CONFIG=no_upload_hvv ') && continue
+                LaunchParams+=('VKD3D_CONFIG=no_upload_hvv') && continue
             ;;
             "OpenGLForce")
-                LaunchParams+=('PROTON_USE_WINED3D=1 ') && continue
+                LaunchParams+=('PROTON_USE_WINED3D=1') && continue
             ;;
             "Esync")
-                LaunchParams+=('PROTON_NO_ESYNC=1 ') && continue
+                LaunchParams+=('PROTON_NO_ESYNC=1') && continue
             ;;
             "Vsync")
-                LaunchParams+=('DXVK_ASYNC=1 ') && continue
+                LaunchParams+=('DXVK_ASYNC=1') && continue
             ;;
             "DX12")
-                LaunchParams+=('VKD3D_CONFIG="dxr,dxr11" VKD3D_FEATURE_LEVEL=12_2 ') && continue
+                LaunchParams+=('VKD3D_CONFIG="dxr,dxr11" VKD3D_FEATURE_LEVEL=12_2') && continue
             ;;
-            "NGXEnabled")
-                LaunchParams+=('PROTON_ENABLE_NGX_UPDATER=1 ') && continue
+            "NGXStatus")
+                LaunchParams+=('PROTON_ENABLE_NGX_UPDATER=1') && continue
             ;;
             "NVAPI")
-                LaunchParams+=('PROTON_ENABLE_NVAPI=1 DXVK_ENABLE_NVAPI=1 ') && continue
+                LaunchParams+=('PROTON_ENABLE_NVAPI=1 DXVK_ENABLE_NVAPI=1') && continue
             ;;
             *) ## Not a supported option
                 continue
