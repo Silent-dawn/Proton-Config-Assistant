@@ -312,7 +312,7 @@ Introduction() {
 GetUserSpecs() {
     PromptUser "${Bteal}Do You Have An AMD Or Nvidia Card?${White}\n1: AMD\n2: Nvidia\n"
     while [[ $(grep -E -q "^[12]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
-        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for GPU manufacturer, please try again.\n${Bteal}Do You Have An AMD Or Nvidia Card?${White}"
+        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for GPU manufacturer, please try again.\n${Bteal}Do You Have An AMD Or Nvidia Card?${White}\n1: AMD\n2: Nvidia\n"
     done
     case "${PromptOutput}" in
         1)
@@ -324,7 +324,7 @@ GetUserSpecs() {
     esac
     clear && Introduction && PromptUser "${Bteal}Are you using Proton-GE?${White}\n"
     while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
-        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for Proton-GE, please try again.\n${Bteal}Are you using Proton-GE?${White}"
+        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for Proton-GE, please try again.\n${Bteal}Are you using Proton-GE?${White}\n"
     done
     case "${PromptOutput}" in
         +(yes|YES|y|Y|Yes))
@@ -337,7 +337,7 @@ GetUserSpecs() {
     esac
     clear && Introduction && PromptUser "${Bteal}Are you using Proton Experimental?${White}\n"
     while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
-        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for Proton Experimental, please try again.\n${Bteal}Are you using Proton Experimental?${White}"
+        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for Proton Experimental, please try again.\n${Bteal}Are you using Proton Experimental?${White}\n"
     done
     case "${PromptOutput}" in
         +(yes|YES|y|Y|Yes))
@@ -352,9 +352,9 @@ GetUserSpecs() {
 
 GetUserOptions() { ## Prompts and stores return/exit values for configuration options
     ## Logging
-    clear && Introduction && PromptUser "${Bteal}Do you want to enable logging?${White}"
+    clear && Introduction && PromptUser "${Bteal}Do you want to enable logging?${White}\n"
     while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
-        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for logging Support, please try again.\n${Bteal}Do you want to enable logging?${White}"
+        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for logging Support, please try again.\n${Bteal}Do you want to enable logging?${White}\n"
     done
     case "${PromptOutput}" in
         +(yes|YES|y|Y|Yes))
@@ -367,9 +367,9 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
     UserOptions+=(["Logging"]="${LogEnabled}")
 
     ## Gamemode
-    clear && Introduction && PromptUser "${Bteal}Do you want to enable Gamemode?${White}"
+    clear && Introduction && PromptUser "${Bteal}Do you want to enable Gamemode?${White}\n"
     while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
-        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for Gamemode support, please try again.\n${Bteal}Do you want to enable Gamemode?${White}"
+        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for Gamemode support, please try again.\n${Bteal}Do you want to enable Gamemode?${White}\n"
     done
     case "${PromptOutput}" in
         +(yes|YES|y|Y|Yes))
@@ -382,9 +382,9 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
     UserOptions+=(["GamemodeStatus"]="${GamemodeEnabled}")
 
     ## Mangohud
-    clear && Introduction && PromptUser "${Bteal}Do you want to enable Mangohud?${White}"
+    clear && Introduction && PromptUser "${Bteal}Do you want to enable Mangohud?${White}\n"
     while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
-        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for Mangohud support, please try again.\n${Bteal}Do you want to enable Mangohud?${White}"
+        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for Mangohud support, please try again.\n${Bteal}Do you want to enable Mangohud?${White}\n"
     done
     case "${PromptOutput}" in
         +(yes|YES|y|Y|Yes))
@@ -400,9 +400,9 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
     case "${DXVK3D}" in 
         "1") ## Supported
             ## Force DXVK Vsync
-            clear && Introduction && PromptUser "${Bteal}Do you want to enable Vsync?${White}"
+            clear && Introduction && PromptUser "${Bteal}Do you want to enable Vsync?${White}\n"
             while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
-                clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for Vsync Support, please try again.\n${Bteal}Do you want to enable Vsync?${White}"
+                clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for Vsync Support, please try again.\n${Bteal}Do you want to enable Vsync?${White}\n"
             done
             case "${PromptOutput}" in
                 +(yes|YES|y|Y|Yes))
@@ -415,9 +415,9 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
             UserOptions+=(["Vsync"]="${VsyncEnabled}")
 
             ## Enable DX12 VK3D Support
-            clear && Introduction && PromptUser "${Bteal}Do you want to enable DX12?${White}"
+            clear && Introduction && PromptUser "${Bteal}Do you want to enable DX12?${White}\n"
             while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
-                clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for DX12 Support, please try again.\n${Bteal}Do you want to enable DX12?${White}"
+                clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for DX12 Support, please try again.\n${Bteal}Do you want to enable DX12?${White}\n"
             done
             case "${PromptOutput}" in
                 +(yes|YES|y|Y|Yes))
@@ -432,9 +432,9 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
     esac
 
     ## Integer Scaling
-    clear && Introduction && PromptUser "${Bteal}Do you want to enable Integer Scaling?${White}"
+    clear && Introduction && PromptUser "${Bteal}Do you want to enable Integer Scaling?${White}\n"
     while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
-        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for Integer Scaling Support, please try again.\n${Bteal}Do you want to enable Integer Scaling?${White}"
+        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for Integer Scaling Support, please try again.\n${Bteal}Do you want to enable Integer Scaling?${White}\n"
     done
     case "${PromptOutput}" in
         +(yes|YES|y|Y|Yes))
@@ -447,9 +447,9 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
     UserOptions+=(["IntegerScaling"]="${IntegerScalingEnable}")
 
     ## Disable DX9
-    clear && Introduction && PromptUser "${Bteal}Do you want to disable DirectX 9?${White}"
+    clear && Introduction && PromptUser "${Bteal}Do you want to disable DirectX 9?${White}\n"
     while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
-        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for DirectX 9 toggle, please try again.\n${Bteal}Do you want to disable DirectX 9?${White}"
+        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for DirectX 9 toggle, please try again.\n${Bteal}Do you want to disable DirectX 9?${White}\n"
     done
     case "${PromptOutput}" in
         +(yes|YES|y|Y|Yes))
@@ -462,9 +462,9 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
     UserOptions+=(["DX9Disable"]="${DX9Disable}")
 
     ## Disable DX10
-    clear && Introduction && PromptUser "${Bteal}Do you want to disable DirectX 10?${White}"
+    clear && Introduction && PromptUser "${Bteal}Do you want to disable DirectX 10?${White}\n"
     while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
-        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for DirectX 10 toggle, please try again.\n${Bteal}Do you want to disable DirectX 10?${White}"
+        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for DirectX 10 toggle, please try again.\n${Bteal}Do you want to disable DirectX 10?${White}\n"
     done
     case "${PromptOutput}" in
         +(yes|YES|y|Y|Yes))
@@ -477,9 +477,9 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
     UserOptions+=(["DX10Disable"]="${DX10Disable}")
 
     ## Disable DX11
-    clear && Introduction && PromptUser "${Bteal}Do you want to disable DirectX 11?${White}"
+    clear && Introduction && PromptUser "${Bteal}Do you want to disable DirectX 11?${White}\n"
     while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
-        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for DirectX 11 toggle, please try again.\n${Bteal}Do you want to disable DirectX 11?${White}"
+        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for DirectX 11 toggle, please try again.\n${Bteal}Do you want to disable DirectX 11?${White}\n"
     done
     case "${PromptOutput}" in
         +(yes|YES|y|Y|Yes))
@@ -494,9 +494,9 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
     ## Gpu Make Specific Options
     case "${GPUMake}" in 
         "AMD") ## AMD Specific Options
-            clear && Introduction && PromptUser "${Bteal}Do you want to use Valve's ACO?${White}"
+            clear && Introduction && PromptUser "${Bteal}Do you want to use Valve's ACO?${White}\n"
             while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
-                clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for Valve ACO, please try again.\n${Bteal}Do you want to use Valve's ACO?${White}"
+                clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for Valve ACO, please try again.\n${Bteal}Do you want to use Valve's ACO?${White}\n"
             done
             case "${PromptOutput}" in
                 +(yes|YES|y|Y|Yes))
@@ -507,9 +507,9 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
                 ;;
             esac
             UserOptions+=(["ValveACO"]="${ValveACOEnable}")
-            clear && Introduction && PromptUser "${Bteal}Which Vulkan Driver Do You Want To Use?${White}\n1: AMDVLK\n2: RADV"
+            clear && Introduction && PromptUser "${Bteal}Which Vulkan Driver Do You Want To Use?${White}\n1: AMDVLK\n2: RADV\n"
             while [[ $(grep -E -q "^[1-2]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
-                clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for Vulkan Driver , please try again.\n${Bteal}Which Vulkan Driver Do You Want To Use?${White}\n1: AMDVLK\n2: RADV"
+                clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for Vulkan Driver , please try again.\n${Bteal}Which Vulkan Driver Do You Want To Use?${White}\n1: AMDVLK\n2: RADV\n"
             done
             case "${PromptOutput}" in
                 1)
@@ -523,16 +523,16 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
             esac
         ;;
         "Nvidia") ## Nvidia Specific Options
-            clear && Introduction && PromptUser "${Bteal}Do you want to use Shader Cache${White}"
+            clear && Introduction && PromptUser "${Bteal}Do you want to use Shader Cache${White}\n"
             while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
-                clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for Shader Cache, please try again.\n${Bteal}Do you want to use Shader Cache?${White}"
+                clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for Shader Cache, please try again.\n${Bteal}Do you want to use Shader Cache?${White}\n"
             done
             case "${PromptOutput}" in
                 +(yes|YES|y|Y|Yes))
                     NvidiaShaderCacheEnabled=1
-                    clear && Introduction && PromptUser "${Bteal}Where do you want to store your Shader Cache?${White}"
+                    clear && Introduction && PromptUser "${Bteal}Where do you want to store your Shader Cache?\n${White}"
                     while [[ ! -d ${PromptOutput} ]]; do
-                        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid directory for Shader Cache Store, please try again.\n${Bteal}Where do you want to store your Shader Cache?${White}"
+                        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid directory for Shader Cache Store, please try again.\n${Bteal}Where do you want to store your Shader Cache?${White}\n"
                     done
                     NvidiaShaderCacheStore="${PromptOutput}"
                 ;;
@@ -542,9 +542,9 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
             esac
             UserOptions+=(["NvidiaShaderCache"]="${NvidiaShaderCacheEnabled}")
             ## NVAPI
-            clear && Introduction && PromptUser "${Bteal}Do you want to enable NVAPI?${White}"
+            clear && Introduction && PromptUser "${Bteal}Do you want to enable NVAPI?${White}\n"
             while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
-                clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for NVAPI Support, please try again.\n${Bteal}Do you want to enable NVAPI?${White}"
+                clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for NVAPI Support, please try again.\n${Bteal}Do you want to enable NVAPI?${White}\n"
             done
             case "${PromptOutput}" in
                 +(yes|YES|y|Y|Yes))
@@ -557,9 +557,9 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
             UserOptions+=(["NVAPI"]="${NVAPIEnable}")
 
             ## PROTON_ENABLE_NGX_UPDATER Nvidia NGX OTA Updates 520.56.06
-            clear && Introduction && PromptUser "${Bteal}Do you want to enable Nvidia NGX?${White}"
+            clear && Introduction && PromptUser "${Bteal}Do you want to enable Nvidia NGX?${White}\n"
             while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
-                clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for Nvidia NGX, please try again.\n${Bteal}Do you want to enable Nvidia NGX?${White}"
+                clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for Nvidia NGX, please try again.\n${Bteal}Do you want to enable Nvidia NGX?${White}\n"
             done
             case "${PromptOutput}" in
                 +(yes|YES|y|Y|Yes))
@@ -588,9 +588,9 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
             UserOptions+=(["NGXEnabled"]="${NGXEnabled}")
 
             ## Hide Nvidia GPU
-            clear && Introduction && PromptUser "${Bteal}Do you want to hide your Nvidia GPU?${White}"
+            clear && Introduction && PromptUser "${Bteal}Do you want to hide your Nvidia GPU?${White}\n"
             while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
-                clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for hiding your Nvidia GPU, please try again.\n${Bteal}Do you want to hide your Nvidia GPU?${White}"
+                clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for hiding your Nvidia GPU, please try again.\n${Bteal}Do you want to hide your Nvidia GPU?${White}\n"
             done
             case "${PromptOutput}" in
                 +(yes|YES|y|Y|Yes))
@@ -606,9 +606,9 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
 
     
     ## Esync Disable / Fsync Enable
-    clear && Introduction && PromptUser "${Bteal}Do you want to disable Esync?${White}"
+    clear && Introduction && PromptUser "${Bteal}Do you want to disable Esync?${White}\n"
     while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
-        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for Esync Support, please try again.\n${Bteal}Do you want to disable Esync?${White}"
+        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for Esync Support, please try again.\n${Bteal}Do you want to disable Esync?${White}\n"
     done
     case "${PromptOutput}" in
         +(yes|YES|y|Y|Yes))
@@ -621,9 +621,9 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
     UserOptions+=(["Esync"]="${EsyncEnabled}")
 
     ## Force OpenGL/WineD3D
-    clear && Introduction && PromptUser "${Bteal}Do you want to force OpenGL?${White}"
+    clear && Introduction && PromptUser "${Bteal}Do you want to force OpenGL?${White}\n"
     while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
-        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for OpenGL Support, please try again.\n${Bteal}Do you want to force OpenGL?${White}"
+        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for OpenGL Support, please try again.\n${Bteal}Do you want to force OpenGL?${White}\n"
     done
     case "${PromptOutput}" in
         +(yes|YES|y|Y|Yes))
@@ -636,9 +636,9 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
     UserOptions+=(["OpenGLForce"]="${ForceOpenGL}")
 
     ## Disable Resizable BAR if causing issues
-    clear && Introduction && PromptUser "${Bteal}Do you want to disable Resizable BAR?${White}"
+    clear && Introduction && PromptUser "${Bteal}Do you want to disable Resizable BAR?${White}\n"
     while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
-        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for disabling Resizable BAR, please try again.\n${Bteal}Do you want to disable Resizable BAR?${White}"
+        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for disabling Resizable BAR, please try again.\n${Bteal}Do you want to disable Resizable BAR?${White}\n"
     done
     case "${PromptOutput}" in
         +(yes|YES|y|Y|Yes))
@@ -683,7 +683,7 @@ ProtonLauncherArgs() {
                 LaunchParams+=("mangohud")
             ;;
             "NvidiaShaderCache")
-                LaunchParams+=("__GL_THREADED_OPTIMIZATION=1 __GL_SHADER_DISK_CACHE=1 __GL_SHADER_DISK_CACHE_PATH=\"${ShaderCacheStore}\" ") && continue
+                LaunchParams+=("__GL_THREADED_OPTIMIZATION=1 __GL_SHADER_DISK_CACHE=1 __GL_SHADER_DISK_CACHE_PATH=\"${NvidiaShaderCacheStore}\" ") && continue
             ;;
             "ValveACO")
                 LaunchParams+=('RADV_PERFTEST=aco ')
