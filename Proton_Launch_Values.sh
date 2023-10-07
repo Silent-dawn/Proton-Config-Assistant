@@ -4,10 +4,15 @@
 ## DO NOT REMOVE THESE!
 ## This is to prevent shellcheck from complaining about false positive issues like unused variables.
 
+## Crash On Fail
+set -e pipefail
+shopt -s extglob
+
+## Todo: Add in FSR Support
 #   optional=("WINE_FSR_OVERRIDE=${FSR_Enabled}" "WINE_FULLSCREEN_FSR=${FSR_Fullscreen}" "WINE_FULLSCREEN_FSR_STRENGTH=${FSR_Strength}")
 #   local FSR_Enabled=0 && FSR_Fullscreen=0 && FSR_Strength=0
 #   local optionalArgs=("WINE_FSR_OVERRIDE=${FSR_Enabled}" "WINE_FULLSCREEN_FSR=${FSR_Fullscreen}" "WINE_FULLSCREEN_FSR_STRENGTH=${FSR_Strength}")
-shopt -s extglob
+
 
 ## File/Field Seperator Reference
 OldIFS=${IFS}
@@ -60,123 +65,6 @@ OptionSymbol="${Bpurple}--${White}"
 HelpNoteSymbol="✨${White}"
 CircleSymbol="${Cyan}💠${White}"
 
-# Let's Sprinkle In Some Unicode
-ANIM=('⡁' '⡂' '⡃' '⡄' '⡆' '⡇' '⡈' '⡉' '⡊' '⡋' '⡌' '⡍' '⡎' '⡏' '⡕' '⡖' '⡗' '⡘' '⡙' '⡚' '⡛' '⡜' '⡝' '⡞' '⡟' '⡧' '⡨' '⡩' '⡪' '⡫' '⡬' '⡭' '⡮' '⡯' '⡰' '⡱' '⡲' '⡳' '⡴' '⡵' '⡶' '⡷' '⡸' '⡹' '⡺' '⡻' '⡼' '⡽' '⡾' '⡿' '⢇' '⢍' '⢎' '⢏' '⢓' '⢗' '⢘' '⢙' '⢚' '⢛' '⢜' '⢝' '⢞' '⢟' '⢩' '⢪' '⢫' '⢬' '⢭' '⢮' '⢯' '⢱' '⢲' '⢳' '⢴' '⢵' '⢶' '⢷' '⢸' '⢹' '⢺' '⢻' '⢼' '⢽' '⢾' '⢿' '⣇' '⣉' '⣊' '⣋' '⣌' '⣍' '⣎' '⣏' '⣓' '⣕' '⣖' '⣗' '⣘' '⣙' '⣚' '⣛' '⣜' '⣝' '⣞' '⣟' '⣧' '⣨' '⣩' '⣪' '⣫' '⣬' '⣭' '⣮' '⣯' '⣰' '⣱' '⣲' '⣳' '⣴' '⣵' '⣶' '⣷' '⣸' '⣹' '⣺' '⣻' '⣼' '⣽' '⣾' '⣿')
-
-############
-##  NOTE  ##
-############
-# Do not call this function directly, specifically for the Spheara controller!!! 
-# This function acts as the terminal spinner draw worker. This MUST be it's own function.
-# https://github.com/DevelopersToolbox/bash-spinner
-DrawSpinner() { ## Draw me a sexy spinner please
-  # shellcheck disable=SC1003
-  local delay && delay="0.25" && Message=${1:-}; tput civis ## Hide Cursor
-  while :; do ## While True, Be Bob Ross
-      FRAME="${ANIM[RANDOM%${#ANIM[@]}]}${ANIM[RANDOM%${#ANIM[@]}]}${ANIM[RANDOM%${#ANIM[@]}]}${ANIM[RANDOM%${#ANIM[@]}]}"
-      printf %b "\033[1F\033[2K  [$(tput bold)${Cyan}${FRAME}${White}]  ${Message}\033[1E" >&1; sleep "${delay}"
-  done
-  tput cnorm ## Restore Cursor
-} ## End of Function
-
-declare -g SpinnerPID
-export SpinnerPID
-
-Spheara() { ## New and improved Spinner!
-    ########################################################################################################
-    ##    SPHEARA - SPINNER [Credit: Wolf Software (https://github.com/DevelopersToolbox/bash-spinner)]   ##
-    ########################################################################################################
-    # set the message (somewhat optional)
-    case "${1}" in
-        "help"|"HELP"|"h"|"H")
-            printf %b "\n
-            Spheara | Sphere/Spinner Help Menu:\n
-            ${CircleSymbol} Syntax: ${Bteal}Spheara${White} <${Magenta}Start/Stop${White}> <${Green}Argument(s)${White}>\n
-            Valid Options:\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}HELP ] - ${Green}Help${White}\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}START ]  - ${Green}Start Spinner${White} ${HelpNoteSymbol}\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}STOP ] - ${Green}Stop Spinner${White} ${HelpNoteSymbol} ${HelpNoteSymbol}${HelpNoteSymbol}\n
-            Valid Stop Conditions:\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}SUCCESS${White} ] - ${Green}End as a Success${White}\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}FAIL${White} ]  - ${Red}End as a Failure${White}\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}WARN${White} ] - ${Yellow}End as a Warning${White}\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}PANICK${White} ] - ${Bred}$(tput bold)End as a Critical Failure${White}\n
-            ${HelpNoteSymbol}  - Note:\n
-                A Message/Label is required.\n
-            ${HelpNoteSymbol}${HelpNoteSymbol}  - Note:\n
-                A Stop Condition And Target Spinner is required.\n
-            "
-        ;;
-        "start"|"START"|"ss"|"SS")
-            ## Self Explanitory Case Statement To Enforce Message Requirement
-            case "$( [[ -n "${2}" ]] )$?" in 
-              0) ## Message Is Valid, Spawn Spinner
-                DrawSpinner "${2}" &  ## Start the Spinner And Toss Into Background
-                ## Create Record Of Spinner For Management
-                SpinnerPID="$!"
-                ## Tell Shellcheck & The Console To Shut Up
-                # shellcheck disable=SC2173
-                trap "${SpinnerPID}" 9
-              ;;
-              1) ## No Message Provided
-                printf %b "\033[K  [ $(tput bold)${Grey}${KilledSymbol} ] Spinner Message/Label Required\n" && return 1
-              ;;
-              *) ## Something Weird Happened, Make Note Of It And Crash
-                printf %b "\033[K  [ $(tput bold)${Grey}${KilledSymbol} ] Unexpected Message Return Value\n" && return 1
-              ;;
-            esac
-        ;;
-        "stop"|"STOP"|"ST"|"st")
-          [[ -z "${2}" ]] && printf %b "\033[K  [ $(tput bold)${Grey}${KilledSymbol} ] Stop Case Required\\n" && return 1
-          case "${2}" in
-            "success"|"SUCCESS"|"S"|"s") # Success Case
-                [[ -z "${3}" ]] && printf %b "\033[K  [ $(tput bold)${Grey}${KilledSymbol} ] Stop Message Required\n" && return 1
-                kill -9 "${SpinnerPID}"; wait "${SpinnerPID}" 2>/dev/null; printf %b "\033[1F\033[2K  $(tput bold)${Green}${SuccessSymbol} ${3}"
-            ;;
-            "fail"|"FAIL"|"f"|"F") # Failed Case
-                [[ -z "${3}" ]] && printf %b "\033[K  [ $(tput bold)${Grey}${KilledSymbol} ] Stop Message Required\n" && return 1
-                kill -9 "${SpinnerPID}"; wait "${SpinnerPID}" 2>/dev/null; printf %b "\033[1F\033[1E\033[2K  $(tput bold)${Red}${ErrorSymbol} ${3}"
-            ;;
-            "warn"|"WARN"|"w"|"W") # Warning Case
-                [[ -z "${3}" ]] && printf %b "\033[K  [ $(tput bold)${Grey}${KilledSymbol} ] Stop Message Required\n" && return 1
-                kill -9 "${SpinnerPID}"; wait "${SpinnerPID}" 2>/dev/null; printf %b "\033[1F\033[1E\033[2K  $(tput bold)${Yellow}${WarningSymbol} ${3}"
-            ;;
-            "panick"|"PANICK"|"P"|"p") # Oh Shit Case
-                [[ -z "${3}" ]] && printf %b "\033[K  [ $(tput bold)${Grey}${KilledSymbol} ] Stop Message Required\n" && return 1
-                kill -9 "${SpinnerPID}"; wait "${SpinnerPID}" 2>/dev/null; printf %b "\033[1F\033[1E\033[2K  $(tput bold)${Grey}${KilledSymbol} ${3}"
-            ;;
-            "BLANK"|"blank"|"B"|"b") ## Blank, we doing stuff
-                kill -9 "${SpinnerPID}"; wait "${SpinnerPID}" 2>/dev/null
-            ;;
-            *) 
-                kill -9 "${SpinnerPID}"; wait "${SpinnerPID}" 2>/dev/null ## Spinner Still Needs To Die
-                printf %b "\033[K  [ $(tput bold)${Red}${ErrorSymbol} ] Invalid Spinner Stop Case\n" && return 1
-            ;;
-          esac
-        ;;
-        *) ## Obviously You Didn't Listen And Put Something Stupid
-          printf %b "\033[K  [ $(tput bold)${Red}${ErrorSymbol} ] Invalid Spinner Command\n" && return 1
-        ;;
-    esac
-} ## End of Function
-
-##Check If Nvidia Driver Is At Least 520.56.06
-declare -G NvidiaDriverVersion
-export NvidiaDriverVersion
-NDriverVersionCheck() {
-    NvidiaDriverVersion=$(modinfo nvidia | grep ^version | grep -E -o "[0-9]{3}\.[0-9]{2,3}\.[0-9]{2,}")
-    case "$([[ "${NvidiaDriverVersion}" -ge '520.56.06' ]];${?})" in 
-        0)
-            NvidiaDriverVersion=0
-        ;;
-        1)
-            NvidiaDriverVersion="invalid"
-        ;;
-        *)
-            NvidiaDriverVersion="unknown"
-        ;;
-    esac
-} ## End Of Function 
 
 UserInputCapture() { ## Quick and dirty user input trap function
 ## read user input
@@ -185,8 +73,12 @@ UserInputCapture() { ## Quick and dirty user input trap function
     done
 } ## End Of Function
 
+## Defining some vars
 declare -g PromptOutput
 export PromptOutput
+declare -A UserOptions=()
+export UserOptions
+declare LaunchParams=()
 
 PromptUser() { ## Prompt function
     [[ -z ${1} ]] && printf %s "[${RED}Error${WHITE}]: Please Input A Prompt"
@@ -196,64 +88,6 @@ PromptUser() { ## Prompt function
     done
     PromptOutput="${UserInput}"
 }
-
-## Declare and export to make available to subshells
-declare GPUMake
-export GPUMake
-declare ProtonGE
-export ProtonGE
-declare ProtonExperimental
-export ProtonExperimental
-declare DXVK3D
-export DXVK3D
-declare LogEnabled
-export LogEnabled
-declare MangoEnabled
-export MangoEnabled
-declare GamemodeEnabled
-export GamemodeEnabled
-declare NvidiaShaderCacheEnabled
-export NvidiaShaderCacheEnabled
-declare NvidiaShaderCacheStore
-export NvidiaShaderCacheStore
-declare NGXEnabled
-export NGXEnabled
-declare AMDRADVEnable
-export AMDRADVEnable
-declare AMDVLKEnable
-export AMDVLKEnable
-declare ValveACOEnable
-export ValveACOEnable
-declare DX11Disable
-export DX11Disable
-declare DX10Disable
-export DX10Disable
-declare DX9Disable
-export DX9Disable
-declare DirectX12Enabled
-export DirectX12Enabled
-declare VsyncEnabled
-export VsyncEnabled
-declare EsyncEnabled
-export EsyncEnabled
-declare HideGPU
-export HideGPU
-declare NVAPIEnable
-export NVAPIEnable
-declare ProtonOldGL
-export ProtonOldGL
-declare IntegerScalingEnable
-export IntegerScalingEnable
-declare DisableBAR
-export DisableBAR
-declare DLLOverrides
-export DLLOverrides
-declare OverrideEnable
-export OverrideEnable
-declare -A UserOptions=()
-export UserOptions
-declare LaunchParams
-
 
 ## Nightowl's Cool Logo
 Logo="[0m[38;2;254;254;254m [0m[38;2;239;240;250m [0m[38;2;239;240;250m [0m[38;2;253;253;254m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;255;255;255m [0m[38;2;253;252;254m [0m[38;2;239;226;246m [0m[38;2;233;213;243m [0m[38;2;251;248;253m [0m
@@ -336,17 +170,21 @@ GetUserSpecs() {
             ProtonGE=0
         ;;
     esac
-    clear && Introduction && PromptUser "${Bteal}Are you using Proton Experimental?${White}\n"
-    while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
-        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for Proton Experimental, please try again.\n${Bteal}Are you using Proton Experimental?${White}\n"
-    done
-    case "${PromptOutput}" in
-        +(yes|YES|y|Y|Yes))
-            ProtonExperimental=1
-            DXVK3D=1
-        ;;
-        +(no|NO|N|n|No))
-            ProtonExperimental=0
+    case "${ProtonGE}" in
+        0)
+        clear && Introduction && PromptUser "${Bteal}Are you using Proton Experimental?${White}\n"
+        while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
+            clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for Proton Experimental, please try again.\n${Bteal}Are you using Proton Experimental?${White}\n"
+        done
+        case "${PromptOutput}" in
+            +(yes|YES|y|Y|Yes))
+                ProtonExperimental=1
+                DXVK3D=1
+            ;;
+            +(no|NO|N|n|No))
+                ProtonExperimental=0
+            ;;
+        esac
         ;;
     esac
 } ## End Of Function
@@ -359,13 +197,13 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
     done
     case "${PromptOutput}" in
         +(yes|YES|y|Y|Yes))
-            LogEnabled=1
+            LaunchParams+=('PROTON_LOG=1')
         ;;
         +(no|NO|N|n|No))
             LogEnabled=0
         ;;
     esac
-    UserOptions+=(["Logging"]="${LogEnabled}")
+    
 
     ## Gamemode
     clear && Introduction && PromptUser "${Bteal}Do you want to enable Gamemode?${White}\n"
@@ -374,14 +212,13 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
     done
     case "${PromptOutput}" in
         +(yes|YES|y|Y|Yes))
-            GamemodeEnabled=1
+            LaunchParams+=("gamemoderun")
         ;;
         +(no|NO|N|n|No))
             GamemodeEnabled=0
         ;;
     esac
-    UserOptions+=(["GamemodeStatus"]="${GamemodeEnabled}")
-
+    
     ## Mangohud
     clear && Introduction && PromptUser "${Bteal}Do you want to enable Mangohud?${White}\n"
     while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
@@ -389,13 +226,12 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
     done
     case "${PromptOutput}" in
         +(yes|YES|y|Y|Yes))
-            MangoEnabled=1
+            LaunchParams+=("mangohud")
         ;;
         +(no|NO|N|n|No))
             MangoEnabled=0
         ;;
     esac
-    UserOptions+=(["MangoStatus"]="${MangoEnabled}")
     
     ## DXVK/VK3D Support Check
     case "${DXVK3D}" in 
@@ -407,13 +243,12 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
             done
             case "${PromptOutput}" in
                 +(yes|YES|y|Y|Yes))
-                    VsyncEnabled=1
+                    LaunchParams+=('DXVK_ASYNC=1')
                 ;;
                 +(no|NO|N|n|No))
                     VsyncEnabled=0
                 ;;
             esac
-            UserOptions+=(["Vsync"]="${VsyncEnabled}")
 
             ## Enable DX12 VK3D Support
             clear && Introduction && PromptUser "${Bteal}Do you want to enable DX12?${White}\n"
@@ -422,13 +257,12 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
             done
             case "${PromptOutput}" in
                 +(yes|YES|y|Y|Yes))
-                    DirectX12Enabled=1
+                    LaunchParams+=('VKD3D_CONFIG="dxr,dxr11" VKD3D_FEATURE_LEVEL=12_2')
                 ;;
                 +(no|NO|N|n|No))
                     DirectX12Enabled=0
                 ;;
             esac
-            UserOptions+=(["DX12"]="${DirectX12Enabled}")
         ;;
     esac
 
@@ -439,13 +273,12 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
     done
     case "${PromptOutput}" in
         +(yes|YES|y|Y|Yes))
-            IntegerScalingEnable=1
+            LaunchParams+=('WINE_FULLSCREEN_INTEGER_SCALING')
         ;;
         +(no|NO|N|n|No))
             IntegerScalingEnable=0
         ;;
     esac
-    UserOptions+=(["IntegerScaling"]="${IntegerScalingEnable}")
 
     ## Disable DX9
     clear && Introduction && PromptUser "${Bteal}Do you want to disable DirectX 9?${White}\n"
@@ -454,13 +287,12 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
     done
     case "${PromptOutput}" in
         +(yes|YES|y|Y|Yes))
-            DX9Disable=1
+            LaunchParams+=('PROTON_NO_D3D9')
         ;;
         +(no|NO|N|n|No))
             DX9Disable=0
         ;;
     esac
-    UserOptions+=(["DX9Disable"]="${DX9Disable}")
 
     ## Disable DX10
     clear && Introduction && PromptUser "${Bteal}Do you want to disable DirectX 10?${White}\n"
@@ -469,13 +301,12 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
     done
     case "${PromptOutput}" in
         +(yes|YES|y|Y|Yes))
-            DX10Disable=1
+            LaunchParams+=('PROTON_NO_D3D10')
         ;;
         +(no|NO|N|n|No))
             DX10Disable=0
         ;;
     esac
-    UserOptions+=(["DX10Disable"]="${DX10Disable}")
 
     ## Disable DX11
     clear && Introduction && PromptUser "${Bteal}Do you want to disable DirectX 11?${White}\n"
@@ -484,13 +315,12 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
     done
     case "${PromptOutput}" in
         +(yes|YES|y|Y|Yes))
-            IntegerScalingEnable=1
+            LaunchParams+=('PROTON_NO_D3D11')
         ;;
         +(no|NO|N|n|No))
-            IntegerScalingEnable=0
+            DX11Disable=0
         ;;
     esac
-    UserOptions+=(["IntegerScaling"]="${IntegerScalingEnable}")
     
     ## Gpu Make Specific Options
     case "${GPUMake}" in 
@@ -501,25 +331,24 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
             done
             case "${PromptOutput}" in
                 +(yes|YES|y|Y|Yes))
-                    ValveACOEnable=1
+                    LaunchParams+=('RADV_PERFTEST=aco')
                 ;;
                 +(no|NO|N|n|No))
                     ValveACOEnable=0
                 ;;
             esac
-            UserOptions+=(["ValveACO"]="${ValveACOEnable}")
+
+
             clear && Introduction && PromptUser "${Bteal}Which Vulkan Driver Do You Want To Use?${White}\n1: AMDVLK\n2: RADV\n"
             while [[ $(grep -E -q "^[1-2]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
                 clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for Vulkan Driver , please try again.\n${Bteal}Which Vulkan Driver Do You Want To Use?${White}\n1: AMDVLK\n2: RADV\n"
             done
             case "${PromptOutput}" in
                 1)
-                    AMDVLKEnable=1
-                    UserOptions+=(["AMDVLK"]="${AMDVLKEnable}")
+                    LaunchParams+=('AMD_VULKAN_ICD=RADV')
                 ;;
                 2)
                     AMDRADVEnable=1
-                    UserOptions+=(["AMDRADV"]="${AMDRADVEnable}")
                 ;;
             esac
         ;;
@@ -530,18 +359,18 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
             done
             case "${PromptOutput}" in
                 +(yes|YES|y|Y|Yes))
-                    NvidiaShaderCacheEnabled=1
                     clear && Introduction && PromptUser "${Bteal}Where do you want to store your Shader Cache?\n${White}"
                     while [[ ! -d ${PromptOutput} ]]; do
                         clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid directory for Shader Cache Store, please try again.\n${Bteal}Where do you want to store your Shader Cache?${White}\n"
                     done
                     NvidiaShaderCacheStore="${PromptOutput}"
+                    LaunchParams+=("__GL_THREADED_OPTIMIZATION=1 __GL_SHADER_DISK_CACHE=1 __GL_SHADER_DISK_CACHE_PATH=\"${NvidiaShaderCacheStore}\"")
                 ;;
                 +(no|NO|N|n|No))
                     NvidiaShaderCacheEnabled=0
                 ;;
             esac
-            UserOptions+=(["NvidiaShaderCache"]="${NvidiaShaderCacheEnabled}")
+            
             ## NVAPI
             clear && Introduction && PromptUser "${Bteal}Do you want to enable NVAPI?${White}\n"
             while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
@@ -549,13 +378,12 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
             done
             case "${PromptOutput}" in
                 +(yes|YES|y|Y|Yes))
-                    NVAPIEnable=1
+                    LaunchParams+=('PROTON_ENABLE_NVAPI=1 DXVK_ENABLE_NVAPI=1')
                 ;;
                 +(no|NO|N|n|No))
                     NVAPIEnable=0
                 ;;
             esac
-            UserOptions+=(["NVAPI"]="${NVAPIEnable}")
 
             ## PROTON_ENABLE_NGX_UPDATER Nvidia NGX OTA Updates 520.56.06
             clear && Introduction && PromptUser "${Bteal}Do you want to enable Nvidia NGX?${White}\n"
@@ -566,7 +394,7 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
                 +(yes|YES|y|Y|Yes))
                     case "$( [[ "$(modinfo nvidia | grep ^version | grep -E -o "[0-9.]{7,}")" > "520.56.06" ]] )${?}" in 
                         0)
-                            NGXEnabled=1 
+                            LaunchParams+=('PROTON_ENABLE_NGX_UPDATER=1')
                             #printf %b "\n[${Green}Success${White}]: Your Driver Supports NGX\n"
                         ;;
                         1)
@@ -583,7 +411,6 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
                     NGXEnabled=0
                 ;;
             esac
-            UserOptions+=(["NGXStatus"]="${NGXEnabled}")
 
             ## Hide Nvidia GPU
             clear && Introduction && PromptUser "${Bteal}Do you want to hide your Nvidia GPU?${White}\n"
@@ -592,13 +419,12 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
             done
             case "${PromptOutput}" in
                 +(yes|YES|y|Y|Yes))
-                    HideGPU=1
+                    LaunchParams+=('PROTON_HIDE_NVIDIA_GPU=1')
                 ;;
                 +(no|NO|N|n|No))
-                    HideGPU=0
+                    LaunchParams+=('PROTON_HIDE_NVIDIA_GPU=0')
                 ;;
             esac
-            UserOptions+=(["HideNvidia"]="${HideGPU}")
         ;; 
     esac
 
@@ -610,13 +436,12 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
     done
     case "${PromptOutput}" in
         +(yes|YES|y|Y|Yes))
-            EsyncEnabled=1
+            LaunchParams+=('PROTON_NO_ESYNC=1')
         ;;
         +(no|NO|N|n|No))
             EsyncEnabled=0
         ;;
     esac
-    UserOptions+=(["Esync"]="${EsyncEnabled}")
 
     ## Force OpenGL/WineD3D
     clear && Introduction && PromptUser "${Bteal}Do you want to force OpenGL?${White}\n"
@@ -625,13 +450,12 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
     done
     case "${PromptOutput}" in
         +(yes|YES|y|Y|Yes))
-            ForceOpenGL=1
+            LaunchParams+=('PROTON_USE_WINED3D=1')
         ;;
         +(no|NO|N|n|No))
             ForceOpenGL=0
         ;;
     esac
-    UserOptions+=(["OpenGLForce"]="${ForceOpenGL}")
 
     ## Disable Resizable BAR if causing issues
     clear && Introduction && PromptUser "${Bteal}Do you want to disable Resizable BAR?${White}\n"
@@ -640,13 +464,13 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
     done
     case "${PromptOutput}" in
         +(yes|YES|y|Y|Yes))
-            DisableBAR=1
+            LaunchParams+=('VKD3D_CONFIG=no_upload_hvv')
         ;;
         +(no|NO|N|n|No))
             DisableBAR=0
         ;;
     esac
-    UserOptions+=(["DisableBar"]="${DisableBAR}")
+
     ## Wine DLL Overrides Not Supported Yet
     #clear && PromptUser "Do you want to enable Wine DLL Overrides?"
     #while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
@@ -660,92 +484,15 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
     #        OverrideEnable=0
     #    ;;
     #esac
-    #UserOptions+=(["Overrides"]="${OverrideEnable}")
-    clear
 }
 
 
 ProtonLauncherArgs() {
     Introduction 
-    sleep 2
+    sleep 1
     GetUserSpecs && GetUserOptions
-    for Option in "${!UserOptions[@]}"; do
-       [[ ${UserOptions[${Option}]} != 1 ]] && continue
-        case "${Option}" in 
-            "GamemodeStatus")
-                LaunchParams+=("gamemoderun")
-            ;;
-            "MangoHudStatus")
-                LaunchParams+=("mangohud")
-            ;;
-            "NvidiaShaderCache")
-                LaunchParams+=("__GL_THREADED_OPTIMIZATION=1 __GL_SHADER_DISK_CACHE=1 __GL_SHADER_DISK_CACHE_PATH=\"${NvidiaShaderCacheStore}\"") && continue
-            ;;
-            "ValveACO")
-                LaunchParams+=('RADV_PERFTEST=aco')
-            ;;
-            "AMDRADV")
-                LaunchParams+=('AMD_VULKAN_ICD=RADV')
-            ;;
-            "AMDVLK")
-                LaunchParams+=('AMD_VULKAN_ICD=AMDVLK')
-            ;;
-            "Logging")
-                LaunchParams+=('PROTON_LOG=1') && continue
-            ;;
-            "HideNvidia")
-                LaunchParams+=('PROTON_HIDE_NVIDIA_GPU=0') && continue
-            ;;
-            "DX9Disable")
-                LaunchParams+=('PROTON_NO_D3D9') && continue
-            ;;
-            "DX10Disable")
-                LaunchParams+=('PROTON_NO_D3D10') && continue
-            ;;
-            "DX11Disable")
-                LaunchParams+=('PROTON_NO_D3D11') && continue
-            ;;
-            "IntegerScaling")
-                LaunchParams+=('WINE_FULLSCREEN_INTEGER_SCALING') && continue
-            ;;
-            "ProtonOldGL")
-                LaunchParams+=('PROTON_OLD_GL_STRING')
-            ;;
-            ## Not Implimented Yet
-            #"Overrides")
-            #    LaunchParams+='PROTON_LOG=1 ' && continue
-            #;;
-            "DisableBar")
-                LaunchParams+=('VKD3D_CONFIG=no_upload_hvv') && continue
-            ;;
-            "OpenGLForce")
-                LaunchParams+=('PROTON_USE_WINED3D=1') && continue
-            ;;
-            "Esync")
-                LaunchParams+=('PROTON_NO_ESYNC=1') && continue
-            ;;
-            "Vsync")
-                LaunchParams+=('DXVK_ASYNC=1') && continue
-            ;;
-            "DX12")
-                LaunchParams+=('VKD3D_CONFIG="dxr,dxr11" VKD3D_FEATURE_LEVEL=12_2') && continue
-            ;;
-            "NGXStatus")
-                LaunchParams+=('PROTON_ENABLE_NGX_UPDATER=1') && continue
-            ;;
-            "NVAPI")
-                LaunchParams+=('PROTON_ENABLE_NVAPI=1 DXVK_ENABLE_NVAPI=1') && continue
-            ;;
-            *) ## Not a supported option
-                continue
-            ;;
-        esac
-    done
     clear
-    Spheara "start" "Generating Your Launch Parameters..."
-    sleep 2 # need an excuse to use my spinner Mkay
-    Spheara "stop" "s" "Successfully Generated Parameters"
-    printf %b "\n${LaunchParams[*]} %command%\n"
+    Introduction && printf %b "\n${LaunchParams[*]} %command%\n"
 }
 
 ProtonLauncherArgs
