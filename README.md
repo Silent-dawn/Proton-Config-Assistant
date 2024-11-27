@@ -35,27 +35,27 @@ This is a tool designed to address it in some manner.
 ## FAQ
 ---
 
-Q: I can't run the file!
-A: run `chmod +x` on the file
+Q: I can't run the file!\
+A: run `chmod +x` on the file\
 
-Q: I hate the logo, can I get rid of it?
-A: Sure can, remove any references to the `Introduction` function, or replace the logic with something you prefer.
+Q: I hate the logo, can I get rid of it?\
+A: Sure can, remove any references to the `Introduction` function, or replace the logic with something you prefer.\
 
-Q: Why is there no IF in your code?
-A: I use case statements and test operators to bypass the need for if. Long story short, its for performance.
+Q: Why is there no IF in your code?\
+A: I use case statements and test operators to bypass the need for if. Long story short, its for performance.\
 
-Q: What does stuff like `Grey="\e[38;5;248m"` do?
-A: They are ANSI escape codes so I can make colors easier to impliment in code. 
+Q: What does stuff like `Grey="\e[38;5;248m"` do?\
+A: They are ANSI escape codes so I can make colors easier to impliment in code.\
 
 > [!NOTE]
 > Check this gist out to learn more: [Link](https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797)
 
-Q: What is going on in code like this?
-    `while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do`
-A: It's a while loop that uses test(the `[[ ]]` part), grep, heredocs(the `<<<` part), and last process exit code (`${?}`) to check for valid input.
+Q: What is going on in code like this?\
+    `while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do`\
+A: It's a while loop that uses test(the `[[ ]]` part), grep, heredocs(the `<<<` part), and last process exit code (`${?}`) to check for valid input.\
 
-Q: Why does your code not follow (insert name here) convention?
-A: I'm a self taught goofball on the internet, and this isn't a professional product.
+Q: Why does your code not follow (insert name here) convention?\
+A: I'm a self taught goofball on the internet, and this isn't a professional product.\
 
-Q: How do I make a feature request?
-A: Create an issue on Github and I'll check it out.
+Q: How do I make a feature request?\
+A: Create an issue on Github and I'll check it out.\
