@@ -36,7 +36,7 @@ This is a tool designed to address it in some manner.
 ---
 
 Q: I can't run the file!\
-A: run `chmod +x` on the file\
+A: run `chmod +x` on the file  
 
 Q: I hate the logo, can I get rid of it?\
 A: Sure can, remove any references to the `Introduction` function, or replace the logic with something you prefer.  
