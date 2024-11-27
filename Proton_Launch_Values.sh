@@ -8,12 +8,6 @@
 set -e pipefail
 shopt -s extglob
 
-## Todo: Add in FSR Support
-#   optional=("WINE_FSR_OVERRIDE=${FSR_Enabled}" "WINE_FULLSCREEN_FSR=${FSR_Fullscreen}" "WINE_FULLSCREEN_FSR_STRENGTH=${FSR_Strength}")
-#   local FSR_Enabled=0 && FSR_Fullscreen=0 && FSR_Strength=0
-#   local optionalArgs=("WINE_FSR_OVERRIDE=${FSR_Enabled}" "WINE_FULLSCREEN_FSR=${FSR_Fullscreen}" "WINE_FULLSCREEN_FSR_STRENGTH=${FSR_Strength}")
-
-
 ## File/Field Seperator Reference
 OldIFS=${IFS}
 
@@ -321,6 +315,21 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
             DX11Disable=0
         ;;
     esac
+
+    ## Force Native/Game-Shipped Vulkan
+    clear && Introduction && PromptUser "${Bteal}Do you want to use the game's native Vulkan loader?${White}\n"
+    while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
+        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for Vulkan loader toggle, please try again.\n${Bteal}Do you want to use the game\'s native Vulkan loader?${White}\n"
+    done
+    case "${PromptOutput}" in
+        +(yes|YES|y|Y|Yes))
+            ## Appended to end of command string in generation, placeholder var
+            NativeVulkan=1
+        ;;
+        +(no|NO|N|n|No))
+            NativeVulkan=0
+        ;;
+    esac
     
     ## Gpu Make Specific Options
     case "${GPUMake}" in 
@@ -428,6 +437,29 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
         ;; 
     esac
 
+    ## Todo: Add in Wine FSR Hack (maybe)
+    #   optional=("WINE_FSR_OVERRIDE=${FSR_Enabled}" "WINE_FULLSCREEN_FSR=${FSR_Fullscreen}" "WINE_FULLSCREEN_FSR_STRENGTH=${FSR_Strength}")
+
+    ## Enable FSR
+    clear && Introduction && PromptUser "${Bteal}Do you want to enable FSR?${White}\n"
+    while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
+        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input, please try again.\n${Bteal}Do you want to enable FSR?${White}\n"
+    done
+    case "${PromptOutput}" in
+        +(yes|YES|y|Y|Yes))
+            LaunchParams+=('WINE_FULLSCREEN_FSR=1')
+            ## Configure FSR Strength
+            clear && Introduction && PromptUser "${Bteal}How much sharpening do you want for FSR?${White}\n"
+            while [[ $(grep -E -q "^[0-5]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
+                clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input: not 0 - 5, please try again.\n${Bteal}How much sharpening do you want for FSR${White}\n"
+            done
+            LaunchParams+=("WINE_FULLSCREEN_FSR_STRENGTH=${PromptOutput}")
+        ;;
+        +(no|NO|N|n|No))
+            DisableFSR=0
+        ;;
+    esac
+
     
     ## Esync Disable / Fsync Enable
     clear && Introduction && PromptUser "${Bteal}Do you want to disable Esync?${White}\n"
@@ -471,19 +503,24 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
         ;;
     esac
 
-    ## Wine DLL Overrides Not Supported Yet
-    #clear && PromptUser "Do you want to enable Wine DLL Overrides?"
-    #while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
-    #    clear && PromptUser "Invalid input for enabling Wine DLL Overrides, please try again.\nDo you want to enable Wine DLL Overrides?"
-    #done
-    #case "${PromptOutput}" in
-    #    +(yes|YES|y|Y|Yes))
-    #        OverrideEnable=1
-    #    ;;
-    #    +(no|NO|N|n|No))
-    #        OverrideEnable=0
-    #    ;;
-    #esac
+    ## Wine DLL Overrides
+    ## Example DDL Override in-line: WINEDLLOVERRIDES="dinput8=n,b"
+    clear && Introduction && PromptUser "${Bteal}Do you want to enable Wine DLL Overrides?\n"
+    while [[ $(grep -E -q "^[yYnNeEoOsS]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
+        clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input for enabling Wine DLL Overrides, please try again.\nDo you want to enable Wine DLL Overrides?"
+    done
+    case "${PromptOutput}" in
+        +(yes|YES|y|Y|Yes))
+           clear && Introduction && PromptUser "${Bteal}Please input desired overrides. Ex: dinput8=n,b\n"
+            while [[ $(grep -E -q "^[a-zA-Z0-9,]{1,}" <<< "${PromptOutput}")${?} != 0 ]]; do
+                clear && Introduction && PromptUser "[${Yellow}Warning${White}]: Invalid input, please try again."
+            done
+            LaunchParams+=("WINEDLLOVERRIDES=\"${PromptOutput}\"")
+        ;;
+        +(no|NO|N|n|No))
+            OverrideEnable=0
+        ;;
+    esac
 }
 
 
@@ -492,7 +529,15 @@ ProtonLauncherArgs() {
     sleep 1
     GetUserSpecs && GetUserOptions
     clear
-    Introduction && printf %b "\n${LaunchParams[*]} %command%\n"
+    ## Vulkan loader handling required, has to come after %command%
+    case "${NativeVulkan}" in 
+        1)
+            Introduction && printf %b "\n${LaunchParams[*]} %command% -nativevulkanloader\n"
+        ;;
+        *)
+            Introduction && printf %b "\n${LaunchParams[*]} %command%\n"
+        ;;
+    esac
 }
 
 ProtonLauncherArgs
