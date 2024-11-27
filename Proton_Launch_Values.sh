@@ -404,15 +404,18 @@ GetUserOptions() { ## Prompts and stores return/exit values for configuration op
                     case "$( [[ "$(modinfo nvidia | grep ^version | grep -E -o "[0-9.]{7,}")" > "520.56.06" ]] )${?}" in 
                         0)
                             LaunchParams+=('PROTON_ENABLE_NGX_UPDATER=1')
-                            #printf %b "\n[${Green}Success${White}]: Your Driver Supports NGX\n"
+                            clear && Introduction && printf %b "\n[${Green}Success${White}]: Your Driver Supports NGX\n"
+                            sleep 1
                         ;;
                         1)
                             NGXEnabled=0 
-                            #printf %b "[${Yellow}Warning${White}]: Your GPU Does Not Support NGX"
+                            clear && Introduction && printf %b "[${Yellow}Warning${White}]: Your GPU Does Not Support NGX\n"
+                            sleep 1
                         ;;
                         *)
                             NGXEnabled=0 
-                            #printf %b "[${Yellow}Warning${White}]: Unknown Driver Version, Skipping NGX"
+                            clear && Introduction && printf %b "[${Yellow}Warning${White}]: Unknown Driver Version, Skipping NGX\n"
+                            sleep 1
                         ;;
                     esac
                 ;;
